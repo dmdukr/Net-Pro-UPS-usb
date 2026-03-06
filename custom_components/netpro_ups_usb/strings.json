@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "NetPRO UPS USB",
+        "description": "Configure a NetPRO UPS connected over USB.",
+        "data": {
+          "name": "Name",
+          "port": "Serial port",
+          "poll_interval": "Poll interval (seconds)",
+          "skip_connection_check": "Save even if the first connection test fails"
+        }
+      }
+    },
+    "error": {
+      "invalid_port": "Home Assistant returned the serial port in an unexpected format. Re-open the form and select the port again.",
+      "cannot_connect": "Failed to communicate with the UPS. You can still save the entry by enabling the skip check option and then inspect Home Assistant logs.",
+      "already_configured": "This device is already configured."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "NetPRO UPS USB Options",
+        "description": "Update settings for this UPS. Changes take effect immediately (integration reloads).",
+        "data": {
+          "port": "Serial port",
+          "poll_interval": "Poll interval (seconds)",
+          "debug_log": "Enable debug log file (/config/netpro_ups_usb.log)"
+        }
+      }
+    },
+    "error": {
+      "invalid_port": "Home Assistant returned the serial port in an unexpected format. Select the port again."
+    }
+  }
+}

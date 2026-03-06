@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate manifest version against tag
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = Path("custom_components/netpro_ups_usb/manifest.json")
+          version = json.loads(manifest.read_text(encoding="utf-8"))["version"]
+          ref_name = os.environ.get("GITHUB_REF_NAME", "")
+          if ref_name.startswith("v") and ref_name[1:] != version:
+              raise SystemExit(
+                  f"Tag version {ref_name} does not match manifest version {version}"
+              )
+          print(f"Validated version: {version}")
+          PY
+
+      - name: Generate release notes from changelog
+        id: notes
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          ref_name = os.environ.get("GITHUB_REF_NAME", "")
+          version = ref_name[1:] if ref_name.startswith("v") else ref_name
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          pattern = re.compile(
+              rf"^##\s+{re.escape(version)}\s*$([\s\S]*?)(?=^##\s+|\Z)",
+              re.MULTILINE,
+          )
+          match = pattern.search(changelog)
+          notes = match.group(1).strip() if match else "Automated release."
+          output = Path(os.environ["GITHUB_OUTPUT"])
+          with output.open("a", encoding="utf-8") as fh:
+              fh.write("body<<EOF\n")
+              fh.write(notes + "\n")
+              fh.write("EOF\n")
+          PY
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: false
+          body: ${{ steps.notes.outputs.body }}

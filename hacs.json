@@ -1,0 +1,9 @@
+{
+  "name": "NetPRO UPS USB",
+  "content_in_root": false,
+  "domains": [
+    "netpro_ups_usb"
+  ],
+  "render_readme": true,
+  "homeassistant": "2025.1.0"
+}
